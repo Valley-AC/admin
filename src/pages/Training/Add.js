@@ -1,62 +1,143 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Nav from '../../components/Nav/Nav'
-import { Formik, useFormik } from 'formik';
-import * as yup from 'yup';
-import { Button, TextField } from '@mui/material';
+import Swal from 'sweetalert2'
+import Select from 'react-select';
+import { Input,Form,Label,Button } from 'reactstrap';
+import TrainingsList from './List';
 
-const validationSchema = yup.object({
-    title: yup
-      .string('Enter your title')
-      .title('Enter a valid title')
-      .required('title is required'),
-    password: yup
-      .string('Enter your password')
-      .min(8, 'Password should be of minimum 8 characters length')
-      .required('Password is required'),
+
+
+
+
+
+
+export default function AddTraining() {
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    image: '',
+    description: '',
+    category: "",
+    price: 0,
   });
 
-export default function Add() {
-    const formik = useFormik({
-        initialValues: {
-          title: 'foobar@example.com',
-          password: 'foobar',
-        },
-        validationSchema: validationSchema,
-        onSubmit: (values) => {
-          alert(JSON.stringify(values, null, 2));
-        },
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    formData.category = selectedOption.value;
+    fetch('http://localhost:8080/api/training/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        Swal.fire(
+          'Bravo!',
+          'Formation ajoutée avec succés',
+          'success'
+        )
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
       });
+  };
+
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleChangeSelect = (selectedOption) => {
+    setSelectedOption(selectedOption);
+    
+  };
+
+  const options = [
+    { value: 'soft-skills', label: 'Soft-skills' },
+    { value: 'hard-skills', label: 'Hard-skills' },
+    { value: 'coaching', label: 'Coaching' },
+    { value: 'métier', label: 'Métiers' },
+  ];
+
+  const [files, setFiles] = useState(null);
+
+  const handleFileInputChange = (event) => {
+    const files = Array.from(event.target.files);
+    setFiles(files);
+  };
+
+  const handleSubmitFile = (event) => {
+    event.preventDefault();
+
+    
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append(`avatar`, file);
+    });
+
+    fetch('http://localhost:8080/api/training/upload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('File uploaded:', data);
+      })
+      .catch(error => {
+        console.error('Error uploading file:', error);
+      });
+  };
+
   return (
     <div style={{width:'100%'}}>
         <Nav/>
-        <div  style={{ margin:40,padding:20,display:'flex',justifyContent:'center'}}>
-        <form  onSubmit={formik.handleSubmit}>
-        <TextField
-          fullWidth
-          id="title"
-          name="title"
-          label="Titre de la formation"
-          value={formik.values.title}
-          onChange={formik.handleChange}
-          error={formik.touched.title && Boolean(formik.errors.title)}
-          helperText={formik.touched.title && formik.errors.title}
-        />
-        <TextField
-          fullWidth
-          id="password"
-          name="password"
-          label="Password"
-          type="password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          error={formik.touched.password && Boolean(formik.errors.password)}
-          helperText={formik.touched.password && formik.errors.password}
-        />
-        <Button color="secondary" variant="contained" fullWidth type="submit">
-          Submit
-        </Button>
-      </form>
+        <div style={{width:'50%', margin:20}} >
+      
+
+        <Form onSubmit={handleSubmit}>
+      <Label>
+        Titre de formation:
+      </Label>
+      
+        <Input type="text" name="title" value={formData.title} onChange={handleChange} />
+      <Label>
+        Images:
+      </Label>
+        <Input type="text" name="image" value={formData.image} onChange={handleChange} />
+      <Label>
+      Description:
+      </Label>
+      
+        <Input  type="textarea" name="description" value={formData.description} onChange={handleChange}/>
+        <Label>
+      Catégorie:
+      </Label>
+      <Select
+      value={selectedOption}
+      onChange={handleChangeSelect}
+      options={options}
+      name='category'
+    />
+      <Label>
+        Prix:
+      </Label>
+        <Input type="number" name="price" value={formData.price} onChange={handleChange} />
+      <Button style={{marginTop:20}}   color="primary" type="submit">Send</Button>
+    </Form>
       </div>
+
+      <form onSubmit={handleSubmitFile}>
+      <input multiple type="file" onChange={handleFileInputChange} />
+      <button type="submit">Upload</button>
+    </form>
+
+
+      <TrainingsList/>
     </div>
   )
 }

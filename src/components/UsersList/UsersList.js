@@ -1,40 +1,48 @@
 import * as React from 'react';
-import {
-  DataGrid,
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridToolbarExport,
-  GridToolbarDensitySelector,
-} from '@mui/x-data-grid';
-import { useDemoData } from '@mui/x-data-grid-generator';
+import { Table } from 'reactstrap';
 
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarDensitySelector />
-      <GridToolbarExport />
-    </GridToolbarContainer>
-  );
-}
+
 
 export default function CustomToolbarGrid() {
-  const { data } = useDemoData({
-    dataSet: 'Commodity',
-    rowLength: 10,
-    maxColumns: 20,
-  });
+  const [users, setUsers] = React.useState([]);
+  React.useEffect(() => {
+    fetch('http://localhost:8080/api/users/list')
+      .then(response => response.json())
+      .then(data => setUsers(data))
+      .catch(error => console.log(error));
+  }, []);
+
 
   return (
     <div style={{ height: 400, width: '100%' }}>
-      <DataGrid
-        {...data}
-        components={{
-          Toolbar: CustomToolbar,
-        }}
-      />
+    
+    <Table
+  bordered
+>
+  <thead>
+    <tr>
+      <th>
+        #
+      </th>
+      <th>
+        Email
+      </th>
+    
+    </tr>
+  </thead>
+  <tbody>
+  
+   
+    {users.map(user => (
+       <tr>
+         <th scope="row">
+        {user._id}
+</th>
+        <td key={user.id}>{user.email}</td>
+      </tr>
+      ))}
+  </tbody>
+</Table>
     </div>
   );
 }
