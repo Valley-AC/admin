@@ -25,7 +25,7 @@ export default function Edit(props) {
       const [description, setDescription] = useState('');
       const [category, setCategory] = useState('');
       const [price, setPrice] = useState(0);
-      const [images, setImages] = useState([]);
+      const [image, setImage] = useState("");
    
    
       const handleSubmit = async event => {
@@ -36,9 +36,8 @@ export default function Edit(props) {
         formData.append('description', description);
         formData.append('category', category?.value);
         formData.append('price', price);
-        for (let i = 0; i < images?.length; i++) {
-          formData.append('images', images[i]);
-        }
+        formData.append('image', image);
+        
         try {
           const response = await axios.put('http://localhost:8080/api/training/'+currentTraining._id, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -51,6 +50,9 @@ export default function Edit(props) {
             'You clicked the button!',
             'success'
           )
+         window.location.reload()
+
+
         } catch (error) {
           console.error(error);
         }
@@ -66,7 +68,6 @@ export default function Edit(props) {
           setDescription(res.description)
           setCategory(res.category)
           setPrice(res.price)
-          setImages(res.images)
         
         })
          },[]);
@@ -103,7 +104,7 @@ export default function Edit(props) {
         <Label>
         Images:
       </Label>
-      <Input multiple type="file" onChange={event => setImages(event.target.files)} />
+      <Input  type="file" onChange={(e)=>{setImage(e.target.files[0])}}/>
    
    
    

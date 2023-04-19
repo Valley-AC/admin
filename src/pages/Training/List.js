@@ -69,26 +69,31 @@ export default function TrainingsList() {
 
   const imgs = [
     {
-      src: 'https://ginbits.com/wp-content/uploads/2021/03/Improving-Soft-Skills@3x.png',
-      value: 'image1',
+      src: 'https://thehubbackend.com/media/29533-soft%20skills.jpeg',
+      value: 'soft-skills',
     },
     {
-      src: 'https://cdn.corporatefinanceinstitute.com/assets/hard-skills.jpeg',
-      value: 'image2',
+      src: 'https://www.job-hunt.org/wp-content/uploads/2021/12/What-Are-Hard-Skills.jpg',
+      value: 'hard-skills',
     },
     {
       src: 'https://www.mister-wp.com/wp-content/uploads/2020/10/coaching-training-planning-theme-WordPress.jpg',
-      value: 'image3',
+      value: 'coaching',
     },
     {
-      src: 'https://www.studyrama.com/pro/sites/default/files/styles/content/public/metiers-se_former.png?itok=UzxTVCZ5',
-      value: 'image4',
+      src: 'https://www.adage35.org/wp-content/uploads/2010/01/m%C3%A9tier-logo.png',
+      value: 'métier',
+    },
+    {
+      src: 'https://cdn-icons-png.flaticon.com/512/5622/5622887.png',
+      value: '',
     },
   ];
-  const [selected, setSelected] = React.useState(null);
+  const [selected, setSelected] = React.useState({src:'',value:''});
 
   const onPick = (image) => {
     setSelected(image);
+    console.log(image)
   };
 
   
@@ -98,7 +103,7 @@ export default function TrainingsList() {
   return (
     <div style={{margin:20, width: '90%' }}>
       {/* <UploadImage/> */}
-        <h2>Les Catégories</h2>
+       <h4>Filtrer par catégorie</h4>
       <ImagePicker images={imgs} onPick={onPick} />
     <br/>
     <Table
@@ -121,6 +126,9 @@ export default function TrainingsList() {
         Prix
       </th>
       <th>
+      image
+      </th>
+      <th>
         Actions
       </th>
     
@@ -129,7 +137,10 @@ export default function TrainingsList() {
   <tbody>
   
    
-    {training.map(training => (
+    {training
+    
+    .filter((t)=> t.category.includes(selected?.value) )
+    .map(training => (
        <tr>
          <th scope="row">
         {training._id}
@@ -137,18 +148,12 @@ export default function TrainingsList() {
         <td key={training.id}>{training.title}</td>
         
         <td key={training.id}>{training.description}</td>
+        <td key={training.id}>{training.price}</td>
         <td key={training.id}>
-          {training.images.map((img)=> (
-          <img width={200}
-           src={`http://localhost:8080/${img}`}
-          //  src={URL.createObjectURL(img)}
-           ></img>
-         
-          )
-          )}
+          
+        <img width={200} src={`http://localhost:8080/${training?.imageUrl}`}></img>
          
           </td>
-        <td key={training.id}>{training.price}</td>
        
         <td key={training.id}>
         {' '}
