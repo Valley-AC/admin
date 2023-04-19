@@ -4,6 +4,7 @@ import Swal from 'sweetalert2'
 import Select from 'react-select';
 import { Input,Form,Label,Button } from 'reactstrap';
 import TrainingsList from './List';
+import axios from 'axios';
 
 
 
@@ -13,44 +14,38 @@ import TrainingsList from './List';
 
 export default function AddTraining() {
   const [selectedOption, setSelectedOption] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    image: '',
-    description: '',
-    category: "",
-    price: 0,
-  });
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [category, setCategory] = useState('');
+  const [price, setPrice] = useState(0);
+  const [image, setImage] = useState("");
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    formData.category = selectedOption.value;
-    fetch('http://localhost:8080/api/training/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", desc);
+    formData.append("category", selectedOption.value);
+    formData.append("price", price);
+    formData.append("image", image);
+    fetch("http://localhost:8080/api/training/upload", {
+      method: "POST",
+      body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
-        Swal.fire(
-          'Bravo!',
-          'Formation ajoutée avec succés',
-          'success'
-        )
-        console.log('Success:', data);
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(result);
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error("Error:", error);
       });
+
+      window.location.reload()
+   
   };
 
-  const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
-  };
+ 
 
   const handleChangeSelect = (selectedOption) => {
     setSelectedOption(selectedOption);
@@ -64,34 +59,16 @@ export default function AddTraining() {
     { value: 'métier', label: 'Métiers' },
   ];
 
-  const [files, setFiles] = useState(null);
 
-  const handleFileInputChange = (event) => {
-    const files = Array.from(event.target.files);
-    setFiles(files);
-  };
 
-  const handleSubmitFile = (event) => {
-    event.preventDefault();
 
-    
-    const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append(`avatar`, file);
-    });
 
-    fetch('http://localhost:8080/api/training/upload', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('File uploaded:', data);
-      })
-      .catch(error => {
-        console.error('Error uploading file:', error);
-      });
-  };
+
+
+
+
+
+
 
   return (
     <div style={{width:'100%'}}>
@@ -104,16 +81,13 @@ export default function AddTraining() {
         Titre de formation:
       </Label>
       
-        <Input type="text" name="title" value={formData.title} onChange={handleChange} />
-      <Label>
-        Images:
-      </Label>
-        <Input type="text" name="image" value={formData.image} onChange={handleChange} />
+        <Input type="text" name="title" value={title} onChange={(e)=>{setTitle(e.target.value)}} />
+    
       <Label>
       Description:
       </Label>
       
-        <Input  type="textarea" name="description" value={formData.description} onChange={handleChange}/>
+        <Input  type="textarea" name="description" value={desc} onChange={(e)=>{setDesc(e.target.value)}}/>
         <Label>
       Catégorie:
       </Label>
@@ -126,18 +100,28 @@ export default function AddTraining() {
       <Label>
         Prix:
       </Label>
-        <Input type="number" name="price" value={formData.price} onChange={handleChange} />
+        <Input type="number" name="price" value={price} onChange={(e)=>{setPrice(e.target.value)}} />
+      
+      <Label>
+        Image:
+      </Label>
+        <Input  type="file"  onChange={(e)=>{setImage(e.target.files[0])}} />
+      
+      
+      
       <Button style={{marginTop:20}}   color="primary" type="submit">Send</Button>
+   
+   
+   
     </Form>
       </div>
 
-      <form onSubmit={handleSubmitFile}>
-      <input multiple type="file" onChange={handleFileInputChange} />
-      <button type="submit">Upload</button>
-    </form>
+     
 
 
       <TrainingsList/>
+
+
     </div>
   )
 }

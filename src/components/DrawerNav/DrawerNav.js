@@ -13,6 +13,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import ListIcon from '@mui/icons-material/List';
 // type Anchor = 'top' | 'left' | 'bottom' | 'right';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { Link } from 'react-router-dom';
 export default function SwipeableTemporaryDrawer() {
     const handleLogout = () => {
 		localStorage.removeItem("token");
@@ -49,15 +50,19 @@ export default function SwipeableTemporaryDrawer() {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+        {['Home'].map((text, index) => (
+            <Link to='/' style={{textDecoration:'none',color:'rgba(0, 0, 0, 0.87)'}} >
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton >
+            
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
               <ListItemText primary={text} />
+           
             </ListItemButton>
           </ListItem>
+          </Link> 
         ))}
       </List>
       <Divider />
@@ -78,7 +83,7 @@ export default function SwipeableTemporaryDrawer() {
 
   return (
     <div>
-      {([ 'right'] ).map((anchor) => (
+      {(['right'] ).map((anchor) => (
         <React.Fragment key={anchor}>
           <Button onClick={toggleDrawer(anchor, true)}><ListIcon style={{color:'black'}}/></Button>
           <SwipeableDrawer
